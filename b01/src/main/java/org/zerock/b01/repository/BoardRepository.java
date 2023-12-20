@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.zerock.b01.domain.Board;
+import org.zerock.b01.dto.BoardListReplyCountDTO;
 import org.zerock.b01.repository.search.BoardSearch;
 
 import java.util.List;
@@ -31,6 +32,9 @@ public interface BoardRepository extends JpaRepository<Board, Long>, BoardSearch
     //nativeQuery true : value값을 query 그대로 날림
     @Query(value = "select * from board where title like %:title% order by bno desc", nativeQuery = true)
     List<Board> findByTitle2(@Param("title") String title);
+
+
+
 
 
 }
