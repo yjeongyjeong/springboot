@@ -17,8 +17,10 @@ import java.net.URLEncoder;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PageRequestDTO {
+    @Builder.Default
     private int page=1;
-    private int size = 0;
+    @Builder.Default
+    private int size = 10;
     private String type;
     private String keyword;
 
@@ -37,26 +39,28 @@ public class PageRequestDTO {
     //검색 조건과 페이징 조건 등을 문자열로 구성
     private String link;
     public String getLink(){
+
         if(link == null){
             StringBuilder builder = new StringBuilder();
-            builder.append("page=" + this.page);
-            builder.append("&size=" + this.page);
-            
-            //forExample) page=1&size=10
 
-            if(type != null && type.length() >0){
+            builder.append("page=" + this.page);
+            builder.append("&size=" + this.size);
+
+            if(type != null && type.isEmpty()){
                 builder.append("&type=" + type);
             }
 
             if(keyword != null){
-                try { //한글입력하면 깨지므로 urlencoder사용
-                    builder.append("&keyword=" + URLEncoder.encode(keyword,"UTF-8"));
-                }catch (UnsupportedEncodingException e){
-
+                try {
+                    builder.append("&keyword=" + URLEncoder.encode(keyword, "utf-8"));
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
                 }
-                link = builder.toString();
             }
+
+            link = builder.toString();  //page=1&size=10&type=tcw&keyword=1
         }
+
         return link;
     }
 }

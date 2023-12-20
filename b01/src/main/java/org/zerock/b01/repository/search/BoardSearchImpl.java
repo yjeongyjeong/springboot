@@ -41,7 +41,7 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
     public Page<Board> searchAll(String[] types, String keyword, Pageable pageable) {
         QBoard board = QBoard.board;
         JPQLQuery<Board> query = from(board);
-        if((types!=null && types.length <0) && keyword!=null ){
+        if((types!=null && types.length >0) && keyword!=null ){
             BooleanBuilder booleanBuilder = new BooleanBuilder();
             for(String type : types){
                 switch (type){

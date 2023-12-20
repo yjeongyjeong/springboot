@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,8 +21,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class BoardDTO {
     private Long bno;
+    @NotEmpty @Size(min = 3, max = 100)
     private String title;
+    @NotEmpty
     private String content;
+    @NotEmpty
     private String writer;
 
     private LocalDateTime regDate;
