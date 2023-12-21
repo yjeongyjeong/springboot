@@ -7,7 +7,8 @@ import lombok.*;
 @Table(name = "Reply", indexes = {
         @Index(name = "idx_reply_board_bno", columnList = "board_bno")
 })
-@Getter @Builder  @ToString(exclude = "board") //참조하는 객체를 사용하지 않도록 함!!
+@Getter @Builder
+@ToString(exclude = "board") //참조하는 객체를 사용하지 않도록 함!!
 @AllArgsConstructor @NoArgsConstructor
 public class Reply extends BaseEntity { //baseEntity에는 시간설정 담겨잇음
 
@@ -24,5 +25,10 @@ public class Reply extends BaseEntity { //baseEntity에는 시간설정 담겨�
     private String replyText;
     
     private String replyer;
+    
+    //변경할 수 있는 부분을 따로 지정함
+    public void changeText(String text){
+        this.replyText = text;
+    }
 
 }

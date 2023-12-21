@@ -24,7 +24,7 @@ class ReplyRepositoryTests {
     public void testInsert(){
 //reply, replyDTO에서 board로 했기 때문에 join이 들어간 채로 테이블이 생성되고,
 //bno만 가져왔기 때문에 bno로 생성된..걸가..?
-        Long bno = 106L;
+        Long bno = 105L;
         Board board = Board.builder().bno(bno).build();
 
         Reply reply = Reply.builder()
@@ -32,6 +32,7 @@ class ReplyRepositoryTests {
                 .replyText("replyTest")
                 .board(board)
                 .build();
+        log.info(reply);
         replyRepository.save(reply);
     }
 
@@ -49,4 +50,6 @@ class ReplyRepositoryTests {
         Page<Reply> result = replyRepository.listOfBoard(bno, pageable);
         result.getContent().forEach(reply -> log.info(reply));
     }
+
+
 }
