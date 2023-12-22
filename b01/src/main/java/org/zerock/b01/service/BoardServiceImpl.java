@@ -7,10 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.zerock.b01.domain.Board;
-import org.zerock.b01.dto.BoardDTO;
-import org.zerock.b01.dto.BoardListReplyCountDTO;
-import org.zerock.b01.dto.PageRequestDTO;
-import org.zerock.b01.dto.PageResponseDTO;
+import org.zerock.b01.dto.*;
 import org.zerock.b01.repository.BoardRepository;
 
 import java.util.List;
@@ -27,20 +24,23 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public Long register(BoardDTO boardDTO) {
-        Board board = modelMapper.map(boardDTO, Board.class);
-        log.info(board);
+        Board board = dtoToEntity(boardDTO);
         Long bno = boardRepository.save(board).getBno();
-        log.info("bno=+~+~+~+~+~+~+~+~++~++===> "+ bno);
         return bno;
     }
 
     @Override
     public BoardDTO readOne(Long bno) {
-//        Optional result = boardRepository.findById(bno);
-//        Board board = result.orElseThrow();
-        Board board = boardRepository.findById(bno).orElseThrow();
-        BoardDTO boardDTO = modelMapper.map(board, BoardDTO.class);
+////        Optional result = boardRepository.findById(bno);
+////        Board board = result.orElseThrow();
+//        Board board = boardRepository.findById(bno).orElseThrow();
+//        BoardDTO boardDTO = modelMapper.map(board, BoardDTO.class);
 
+        //board_image까지 조인 처리되는 findByWithImages()를 이용
+        Optional<Board> result = boardRepository.findByIdWithImages(bno);
+        Board board = result.orElseThrow();
+
+        BoardDTO boardDTO = entityToDTO(board);
         return boardDTO;
     }
 
@@ -48,6 +48,16 @@ public class BoardServiceImpl implements BoardService {
     public void modify(BoardDTO boardDTO) {
         Board board = boardRepository.findById(boardDTO.getBno()).orElseThrow();
         board.change(boardDTO.getTitle(),boardDTO.getContent());
+        
+        //첨부파일 처리
+        board.clearImages();
+        
+        if(boardDTO.getFileNames() != null) {
+            for (String fileName : boardDTO.getFileNames()) {
+                String[] arr = fileName.split("_");
+                board.addImage(arr[0], arr[1]);
+            }
+        }
         boardRepository.save(board);
     }
 
@@ -100,6 +110,11 @@ public class BoardServiceImpl implements BoardService {
                 .build();
 
 
+    }
+
+    @Override
+    public PageResponseDTO<BoardListAllDTO> listWithAll(PageRequestDTO pageRequestDTO) {
+        return null;
     }
 
 
