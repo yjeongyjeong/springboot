@@ -6,11 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.zerock.b01.domain.Board;
-import org.zerock.b01.dto.BoardDTO;
-import org.zerock.b01.dto.PageRequestDTO;
-import org.zerock.b01.dto.PageResponseDTO;
+import org.zerock.b01.dto.*;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,7 +40,7 @@ class BoardServiceTests {
 
     }
 
-    @Transactional //없으면 에러 발생
+    //@Transactional //없으면 에러 발생
     /*영속 상태인 Proxy 객체에 실제 데이터를 불러오려고 초기화를 시도하지만 Session이 close되어서 준영속 상태가 되어 값을 가져올 수가 없어 발생한 오류...?
     * 지연로딩(lazy)하려면 해당 객체는 무조건 영속성 컨텍스트에서 관리가 필요함..?
     * @transactional */
@@ -65,6 +64,12 @@ class BoardServiceTests {
     }
 
     @Test
+    public void testRemoveAll(){
+        Long bno = 102L;
+        boardService.remove(bno);
+    }
+
+    @Test
     public void testList(){
         PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
                 .type("tcw")
@@ -80,21 +85,23 @@ class BoardServiceTests {
     public void testRegisterWithImages(){
         log.info(boardService.getClass().getName());
 
-        BoardDTO boardDTO = BoardDTO.builder()
-                .title("file sample title~~")
-                .content("sample content~~~~")
-                .writer("user00")
-                .build();
+        for(int i = 0; i < 100; i ++) {
+            BoardDTO boardDTO = BoardDTO.builder()
+                    .title("file sample title~~ " +i)
+                    .content("sample content~~~~" + i)
+                    .writer("user00")
+                    .build();
 
-        boardDTO.setFileNames(
-                Arrays.asList(
-                        UUID.randomUUID()+"_aaa.jpg",
-                        UUID.randomUUID()+"_bbb.jpg",
-                        UUID.randomUUID()+"_ccc.jpg"
-                ));
+            boardDTO.setFileNames(
+                    Arrays.asList(
+                            UUID.randomUUID() + "_aaa" + i+".jpg",
+                            UUID.randomUUID() + "_bbb" + i+".jpg",
+                            UUID.randomUUID() + "_ccc" + i+".jpg"
+                    ));
 
-        Long bno = boardService.register(boardDTO);
-        log.info("bno >> " + bno);
+            Long bno = boardService.register(boardDTO);
+        }
+        //log.info("bno >> " + bno);
     }
 
     @Test
@@ -106,6 +113,28 @@ class BoardServiceTests {
         for(String fileName : boardDTO.getFileNames()){
             log.info(fileName);
         } // end for
+    }
+
+    @Test
+    public void testListWithAll(){
+        PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
+                .page(1)
+                .size(10)
+                .build();
+        PageResponseDTO<BoardListAllDTO> responseDTO = boardService.listWithAll(pageRequestDTO);
+
+        List<BoardListAllDTO> dtoList = responseDTO.getDtoList();
+        dtoList.forEach(boardListAllDTO -> {
+            log.info(boardListAllDTO.getBno() + ":" + boardListAllDTO.getTitle());
+
+            if(boardListAllDTO.getBoardImages() != null){
+                for (BoardImageDTO boardImage : boardListAllDTO.getBoardImages()){
+                    log.info(boardImage);
+                }
+            }
+            log.info("-------------------");
+        });
+
     }
 
 }

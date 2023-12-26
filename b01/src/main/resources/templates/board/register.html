@@ -7,6 +7,105 @@
     <title>Board Register</title>
 </head>
 
+<script layout:fragment="script" th:inline="javascript">
+    const errors = [[${errors}]]
+    console.log(errors);
+    let errorMsg = '';
+
+    if(errors){
+        for(let i = 0; i <errors.length; i++){
+            errorMsg += `${errors[i].field}는 ${errors[i].code} \n`
+        }
+        alert(errorMsg);
+    }
+
+    //업로드 모달
+    const uploadModal = new bootstrap.Modal(document.querySelector(".uploadModal"))
+    document.querySelector(".uploadFileBtn").addEventListener("click", function (e){
+        e.stopPropagation()
+        e.preventDefault()
+        uploadModal.show()
+    }, false)
+
+    //모달창 파일 업로드 및 섬네일 출력
+    document.querySelector(".uploadBtn").addEventListener("click",function(e){
+        const formObj = new FormData();
+        const fileInput = document.querySelector("input[name='files']")
+        console.log(fileInput.files)
+
+        const files = fileInput.files
+
+        for(let i = 0; i < files.length; i++){
+            formObj.append("files", files[i]);
+        }
+
+        uploadToServer(formObj).then(result => {
+            console.log(result)
+
+            for(const uploadResult of result){
+                showUploadFile(uploadResult)
+            }
+            uploadModal.hide()
+        }).catch(e => {
+            uploadModal.hide()
+        })
+    }, false) /*false 가 맞나*/
+
+    const uploadResult = document.querySelector(".uploadResult")
+    function showUploadFile({uuid, fileName, link}){
+        const str =
+            `
+        <div class="card col-4">
+        <div class="card-header d-flex justify-content-center">
+        ${fileName}
+        <button class="btn-sm btn-danger" onclick="javascript:removeFile('${uuid}', '${fileName}', this)" >X</button>
+        </div>
+        <div class="card-body">
+            <img src="/view/${link}" data-src="${uuid+ "_" + fileName}" >
+        </div>
+        </div> <!--card-->
+            `
+            uploadResult.innerHTML += str;
+    }
+
+    function removeFile(uuid, fileName, obj){
+    console.log(uuid)
+    console.log(fileName)
+    console.log(obj)
+
+        const targetDiv = obj.closest(".card")
+        removeFileToServer(uuid, fileName).then(data =>{
+            targetDiv.remove()
+        })
+    }
+
+/* 게시물 등록 과정 처리 */
+    document.querySelector(".submitBtn").addEventListener("click", function(e){
+        e.preventDefault()
+        e.stopPropagation()
+
+        const target = document.querySelector(".uploadHidden")
+        const uploadFiles = uploadResult.querySelectorAll("img")
+        let str = ''
+
+        for(let i = 0; i < uploadFiles.length; i++){
+            const uploadFile = uploadFiles[i]
+            //const imgLink = uploadFile.getAttribute("src")
+            //위처럼 하면 submit시 {"msg":"constraint fails","time":"1703564332434"} 이런식으로 나옴
+            //-> 파일이름에 s_에서 끊겨서 파일 경로가 나오게 되기 때문.. 따라서 아래의 imgLink로 변경해서 진행함
+            const imgLink = uploadFile.getAttribute("data-src");
+            console.log("~~~~~~~~~~~"+imgLink)
+
+            str += `<input type='hidden' name='fileNames' value="${imgLink}">`
+        }
+        target.innerHTML = str;
+
+        /*정상적으로 태그들이 생성되는지 확인 후 아래 주석처리*/
+        document.querySelector("form").submit();
+    },false)
+</script>
+
+
 <div layout:fragment="content">
     <div class="row mt-3">
         <div class="col">
@@ -33,9 +132,16 @@
 
                         </div>
 
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Images</span>
+                            <div class="float-end uploadHidden">
+                                <button type="button" class="btn btn-primary uploadFileBtn">ADD Files</button>
+                            </div>
+                        </div>
+
                         <div class="my-4">
                             <div class="float-end">
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-primary submitBtn">Submit</button>
                                 <button type="reset" class="btn btn-secondary">Reset</button>
                             </div>
                         </div>
@@ -46,20 +152,37 @@
             </div><!--end card-->
         </div><!-- end col-->
     </div><!-- end row-->
-</div>
 
+<!--    첨부 파일 섬네일을 보여줄 부분-->
+    <div class="row mt-3">
+        <div class="col ">
+            <div class="container-fluid d-flex uploadResult" style="flex-wrap: wrap;">
+            </div>
+        </div>
+    </div>
 
-<script layout:fragment="script" th:inline="javascript">
-const errors = [[${errors}]]
-console.log(errors);
-let errorMsg = '';
+    <!-- 첨부파일 추가를 위한 모달창 -->
+    <div class="modal uploadModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Upload File</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <input type="file" name="files" class="form-control" multiple >
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary uploadBtn">Upload</button>
+                    <button type="button" class="btn btn-outline-dark closeUploadBtn" >Close</button>
+                </div>
+            </div>
+        </div>
+    </div><!-- register modal -->
 
-if(errors){
-    for(let i = 0; i <errors.length; i++){
-        errorMsg += `${errors[i].field}는 ${errors[i].code} \n`
-    }
-    alert(errorMsg);
-}
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/js/upload.js"></script>
 
-
-</script>
+</div> <!-- end content -->
