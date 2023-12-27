@@ -80,7 +80,6 @@ public class UpDownController {
         } //end if : 파일이 있다면 -> 이미지라면 섬네일, 아니라면 그냥
         return  null; //파일이 없으면 null 반환
     } //end upload
-//link가 안생기는데???
 
     @Operation(summary = "view 파일", description = "get 방식으로 첨부파일 조회")
     @GetMapping("/view/{fileName}")

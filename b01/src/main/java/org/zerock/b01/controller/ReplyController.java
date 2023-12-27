@@ -48,7 +48,7 @@ public class ReplyController {
             @Valid @RequestBody ReplyDTO replyDTO,
             BindingResult bindingResult    ) throws  BindException{
 
-        log.info(replyDTO);
+        log.info("controller>>>>"+replyDTO);
 
         if(bindingResult.hasErrors()){
             throw new BindException(bindingResult);
@@ -57,6 +57,7 @@ public class ReplyController {
         Map<String, Long> resultMap = new HashMap<>();
         Long rno = replyService.register(replyDTO);
         resultMap.put("rno", rno);
+log.info("rno >>>>>>>>>> "+ rno);
 
         return  resultMap;
     }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/basic.html}">
 
@@ -8,8 +9,12 @@
 </head>
 
 <script layout:fragment="script" th:inline="javascript">
+    const auth = [[${#authentication.principal}]]
     const errors = [[${errors}]]
-    console.log(errors);
+
+    console.log(errors)
+    console.log(auth)
+
     let errorMsg = '';
 
     if(errors){
@@ -103,6 +108,8 @@
         /*정상적으로 태그들이 생성되는지 확인 후 아래 주석처리*/
         document.querySelector("form").submit();
     },false)
+
+
 </script>
 
 
@@ -128,7 +135,8 @@
 
                         <div class="input-group mb-3">
                             <span class="input-group-text">Writer</span>
-                            <input type="text" name="writer" class="form-control" placeholder="Writer">
+                            <input type="text" name="writer" class="form-control" placeholder="Writer"
+                            th:value="${#authentication.principal.username}" readonly>
 
                         </div>
 
@@ -184,5 +192,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="/js/upload.js"></script>
+
+
 
 </div> <!-- end content -->
