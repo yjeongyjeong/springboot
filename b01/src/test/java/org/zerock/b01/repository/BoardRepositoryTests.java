@@ -213,7 +213,7 @@ class BoardRepositoryTests {
     @Commit
     @Transactional
     public void testModifyImages(){
-        Optional<Board> result = boardRepository.findByIdWithImages(108L);
+        Optional<Board> result = boardRepository.findByIdWithImages(4L);
         Board board = result.orElseThrow();
 
         //기존의 첨부파일 삭제
